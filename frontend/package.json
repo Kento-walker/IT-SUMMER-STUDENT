@@ -1,0 +1,11 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "Candidate Flagging System Frontend",
+  "scripts": {
+    "start": "http-server -p 8000 -a localhost"
+  },
+  "dependencies": {
+    "http-server": "^14.1.1"
+  }
+} 

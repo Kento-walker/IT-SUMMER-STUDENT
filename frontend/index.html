@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html ng-app="flaggingApp">
+<head>
+    <title>Candidate Flagging System</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- AngularJS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    
+    <!-- PrimeNG -->
+    <link rel="stylesheet" href="https://unpkg.com/primeng@latest/resources/themes/lara-light-blue/theme.css">
+    <link rel="stylesheet" href="https://unpkg.com/primeng@latest/resources/primeng.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/primeicons/primeicons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body ng-controller="FlaggingController">
+    <div class="container">
+        <h1>Candidate Flagging System</h1>
+        
+        <div class="form-container">
+            <h2>Candidate Information</h2>
+            <form name="candidateForm" ng-submit="evaluateCandidate()">
+                <div class="p-field">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" ng-model="candidate.name" required>
+                </div>
+                
+                <div class="p-field">
+                    <label for="nacExam">NAC Exam Score</label>
+                    <input type="number" id="nacExam" ng-model="candidate.nacExam" 
+                           min="0" max="100" step="0.1" required>
+                    <div class="helper-text">Enter score between 0-100. Passing threshold is 50.</div>
+                </div>
+                
+                <div class="p-field">
+                    <label for="mccqe1Result">MCCQE1 Result</label>
+                    <input type="number" id="mccqe1Result" ng-model="candidate.mccqe1Result" 
+                           min="0" max="100" step="0.1" required>
+                    <div class="helper-text">Enter score between 0-100. Passing threshold is 60.</div>
+                </div>
+                
+                <div class="p-field">
+                    <label for="canadianExperience">Canadian Experience (years)</label>
+                    <input type="number" id="canadianExperience" ng-model="candidate.canadianExperience" 
+                           min="0" max="50" step="0.5" required>
+                    <div class="helper-text">Enter years of Canadian experience. Minimum 1 year recommended.</div>
+                </div>
+                
+                <div class="p-field">
+                    <label for="practiceGaps">Practice Gaps (years)</label>
+                    <input type="number" id="practiceGaps" ng-model="candidate.practiceGaps" 
+                           min="0" max="10" step="0.5" required>
+                    <div class="helper-text">Enter years of practice gaps. More than 2 years may trigger flags.</div>
+                </div>
+                
+                <button type="submit" class="p-button" ng-disabled="isLoading || !backendConnected">
+                    {{isLoading ? 'Evaluating...' : 'Evaluate'}}
+                </button>
+                
+                <div class="error-message" ng-if="errorMessage">
+                    {{errorMessage}}
+                </div>
+            </form>
+        </div>
+        
+        <div class="flags-container" ng-if="flags.length > 0">
+            <h2>Flags</h2>
+            <table class="p-table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Severity</th>
+                        <th>Message</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="flag in flags" ng-class="{'acknowledged': flag.acknowledged, 'overridden': flag.overridden}">
+                        <td>{{flag.type}}</td>
+                        <td>
+                            <span class="severity-badge" ng-class="flag.severity">
+                                {{flag.severity}}
+                            </span>
+                        </td>
+                        <td>{{flag.message}}</td>
+                        <td>
+                            <span class="status-badge" ng-class="{'acknowledged': flag.acknowledged, 'overridden': flag.overridden, 'pending': !flag.acknowledged && !flag.overridden}">
+                                {{flag.overridden ? 'Overridden' : (flag.acknowledged ? 'Acknowledged' : 'Pending Review')}}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="p-dropdown">
+                                <button class="p-button dropdown-toggle">
+                                    Actions
+                                    <i class="pi pi-chevron-down"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <button class="dropdown-item" ng-click="toggleAcknowledge(flag)" ng-disabled="flag.overridden">
+                                        {{flag.acknowledged ? 'Remove Acknowledgment' : 'Acknowledge'}}
+                                    </button>
+                                    <button class="dropdown-item" ng-click="toggleOverride(flag)" ng-disabled="flag.acknowledged">
+                                        {{flag.overridden ? 'Remove Override' : 'Override'}}
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Custom JS -->
+    <script src="app.js"></script>
+</body>
+</html> 
